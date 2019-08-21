@@ -1,25 +1,61 @@
-#### For variances back-tranformation ####
-
-## function for expectation of a zero-inflated Poisson model
+#' Expectation of a zero-inflated Poisson model
+#'
+#' Expectation of a zero-inflated Poisson model from its two latent linear predictors.
+#'
+#' @param l1 Latent linear predictor value for the conditional Poisson part of a model
+#' @param l2 Latent linear predictor value for the probability of a true zero
+#' 
+#' @return None
+#'
+#' @examples
+#' 
+#' @export
 Ey<-function(l1,l2){
   plogis(-l2)*exp(l1)
 }#end Ey()
 
-## population mean given MC samples of latent variables
+#' Population mean given MC samples of latent variables
+#'
+#' population mean given MC samples of latent variables
+#'
+#' @param MC MC samples of l1 and l2
+#' 
+#' @return None
+#'
+#' @examples
+#' 
+#' @export
 barW<-function(MC){
   l1<-MC[,1]
   l2<-MC[,2]
   return(mean(Ey(l1,l2)))
 }#end barW()
 
-# function to give the genetic variance of relative
-# fitness given ZIP model M for MCMC sample s.  This
-# is itself done by MC integration, with nMC samples
+
+
+
+#' Additive genetic variance in relative fitness from ZIP model sample
+#'
+#' Function to give the genetic variance of relative fitness given ZIP model M for MCMC sample s.  This is itself done by MC integration, with nMC samples
+#'
+#' @param m MCMCglmm model
+#' @param s MCMC sample
+#' @param nMC number of MCMC sample to use for integration
+#' @param h Deviations to use for derivation
+#' @param fitnessfile CSV file containing fitness data (in a column called LBS)
+#' @param fixedpred Fixed effects
+#' @param ranpred Random effects
+#' @param focalvar Name of the random effects to back-transform
+#' 
+#' @return None
+#'
+#' @examples
+#' 
+#' @export
 Va_w_zip<-function(m, s=1, nMC=50000, h=0.02,
                    fitnessfile=NULL, fixedpred=c("inbreeding", "Qgg"),
                    ranpred = c("id", "dam", "cohort"), 
-                   focalvar = "id"
-)
+                   focalvar = "id")
 {
   
   muP <- m$Sol[s,"traitLBS"]
@@ -100,6 +136,25 @@ Va_w_zip<-function(m, s=1, nMC=50000, h=0.02,
   return(as.numeric(t(d)%*%sigma_a%*%d))
 } #end Va_w_zip()
 
+
+
+
+#' Back-transform variances in relative fitness from ZIP model
+#'
+#' Function to give the genetic variance of relative fitness given ZIP model.  
+#'
+#' @param m MCMCglmm model
+#' @param nMC number of MCMC sample to use for integration
+#' @param h Deviations to use for derivation
+#' @param fitnessfile CSV file containing fitness data (in a column called LBS)
+#' @param fixedpred Fixed effects
+#' @param ranpred Random effects
+#' 
+#' @return None
+#'
+#' @examples
+#' 
+#' @export
 Va_w_zip_posterior <- function(m, nMC=50000, h=0.02,
                                fitnessfile, fixedpred=c("inbreeding", "Qgg"),
                                ranpred = c("id", "dam", "cohort"))
@@ -133,6 +188,25 @@ Va_w_zip_posterior <- function(m, nMC=50000, h=0.02,
 
 
 #### For model prediction ####
+
+
+
+#' Model prediction from a MCMC sample of a ZIP model 
+#'
+#' Function to give the expected distribution of LBS given a ZIP model and fixed effect predictor values
+#'
+#' @param m MCMCglmm model
+#' @param s MCMC sample
+#' @param nMC number of MCMC sample to use for integration
+#' @param fitnessfile CSV file containing fitness data (in a column called LBS)
+#' @param fixedpred Fixed effects
+#' @param ranpred Random effects
+#' 
+#' @return None
+#'
+#' @examples
+#' 
+#' @export
 zip_pred<-function(m, s=1, nMC=50,
                    fitnessfile=NULL, fixedpred=c("inbreeding", "Qgg"),
                    ranpred = c("id", "dam", "cohort"))
@@ -189,6 +263,21 @@ zip_pred<-function(m, s=1, nMC=50,
 }#end zip_pred()
 
 
+#' Model prediction from a ZIP model 
+#'
+#' Function to give the expected distribution of LBS given a ZIP model and fixed effect predictor values
+#'
+#' @param m MCMCglmm model
+#' @param nMC number of MCMC sample to use for integration
+#' @param fitnessfile CSV file containing fitness data (in a column called LBS)
+#' @param fixedpred Fixed effects
+#' @param ranpred Random effects
+#' 
+#' @return None
+#'
+#' @examples
+#' 
+#' @export
 zip_pred_posterior <- function(m, nMC=10,
                                fitnessfile=NULL, fixedpred=c("inbreeding", "Qgg"),
                                ranpred = c("id", "dam", "cohort"))
